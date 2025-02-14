@@ -20,7 +20,7 @@ const getPost = cache(async (postId: string, loggedInUserId: string) => {
     where: { id: postId },
     include: getPostDataInclude(loggedInUserId),
   });
-  if (!post) notFound();
+  if (!post) return notFound();
   return post;
 });
 

@@ -27,7 +27,7 @@ export function useUpdateProfileMutation() {
       values: UpdateUserProfileValues;
       avatar: File | null;
     }) => {
-      // Update the user profile and upload the avatar if available.
+      // Now updateUserProfile returns the updated user with an "id" property
       return Promise.all([
         updateUserProfile(values),
         avatar ? startAvatarUpload([avatar]) : null,

@@ -9,12 +9,15 @@ import prisma from "@/lib/prisma";
 import { getUserDataSelect } from "@/lib/types";
 import streamServerClient from "@/lib/stream";
 
-export async function updateUserProfile(values: UpdateUserProfileValues) {
+export async function updateUserProfile(
+  values: UpdateUserProfileValues
+): Promise<{ id: string; username: string; displayName: string; avatarUrl: string }> {
   const validateValues = updateUserProfileSchema.parse(values);
 
   const { user } = await validateRequest();
   if (!user) throw new Error("Unauthorized");
-  await prisma.$transaction(async (tx) => {
+  
+  const updatedUser = await prisma.$transaction(async (tx) => {
     const updateUser = await tx.user.update({
       where: {
         id: user.id,
@@ -30,4 +33,11 @@ export async function updateUserProfile(values: UpdateUserProfileValues) {
     });
     return updateUser;
   });
+
+  return {
+    id: updatedUser.id,
+    username: updatedUser.username,
+    displayName: updatedUser.displayName,
+    avatarUrl: updatedUser.avatarUrl ?? "",
+  };
 }
