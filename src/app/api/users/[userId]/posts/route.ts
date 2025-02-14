@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import { getPostDataInclude, PostsPage } from "@/lib/types";
@@ -8,10 +8,10 @@ export async function GET(
   context: { params: { userId: string } }
 ) {
   try {
-    // Ensure the params are awaited properly
-    const { userId } = await context.params;
+    // Ensure the params are correctly destructured from context
+    const { userId } = context.params;
 
-    // Get the cursor from the query params
+    // Get the cursor from the query params (for pagination)
     const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
 
     const pageSize = 10;
@@ -21,7 +21,7 @@ export async function GET(
 
     // If the user is not authenticated, return unauthorized response
     if (!user) {
-      return new Response(
+      return new NextResponse(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { "Content-Type": "application/json" } }
       );
@@ -36,7 +36,7 @@ export async function GET(
       orderBy: {
         createdAt: "desc",
       },
-      take: pageSize + 1, // We fetch one extra to determine if there is more data
+      take: pageSize + 1, // Fetch one extra to determine if there is more data
       cursor: cursor
         ? {
             id: cursor,
@@ -54,13 +54,13 @@ export async function GET(
     };
 
     // Return the posts data as JSON
-    return new Response(
+    return new NextResponse(
       JSON.stringify(data),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error(error);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );

@@ -1,23 +1,25 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import { FollowerInfo } from "@/lib/types";
+import { NextRequest, NextResponse } from "next/server";
 
+// GET request handler to fetch follower information
 export async function GET(
-  req: Request,
-  { params: { userId } }: { params: { userId: string } },
+  req: NextRequest,
+  { params }: { params: { userId: string } }
 ) {
   try {
     const { user: loggedInUser } = await validateRequest();
 
     if (!loggedInUser) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
 
     const user = await prisma.user.findUnique({
       where: {
-        id: userId,
+        id: params.userId, // Use params.userId for correct routing
       },
       select: {
         followers: {
@@ -37,7 +39,7 @@ export async function GET(
     });
 
     if (!user) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
+      return new NextResponse(JSON.stringify({ error: "User not found" }), {
         status: 404,
       });
     }
@@ -47,27 +49,30 @@ export async function GET(
       isFollowedByUser: !!user.followers.length,
     };
 
-    return new Response(JSON.stringify(data), { status: 200 });
+    return new NextResponse(JSON.stringify(data), { status: 200 });
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ error: "Internal server error." }), {
+    return new NextResponse(JSON.stringify({ error: "Internal server error." }), {
       status: 500,
     });
   }
 }
 
+// POST request handler to follow a user
 export async function POST(
-  req: Request,
-  context: { params: { userId: string } },
+  req: NextRequest,
+  { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId } = await context.params;
+    const { userId } = params; // Extract userId from params
     const { user: loggedInUser } = await validateRequest();
+
     if (!loggedInUser) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
+
     await prisma.$transaction([
       prisma.follow.upsert({
         where: {
@@ -90,39 +95,40 @@ export async function POST(
         },
       }),
     ]);
-    // Use upsert to either create or update the follow relationship
 
-    return new Response(JSON.stringify({ message: "Followed successfully" }), {
-      status: 200,
-    });
+    return new NextResponse(
+      JSON.stringify({ message: "Followed successfully" }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ error: "Internal server error." }), {
+    return new NextResponse(JSON.stringify({ error: "Internal server error." }), {
       status: 500,
     });
   }
 }
 
+// DELETE request handler to unfollow a user
 export async function DELETE(
-  req: Request,
-  context: { params: { userId: string } },
+  req: NextRequest,
+  { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId } = await context.params;
-    // Validate request and retrieve the logged-in user
+    const { userId } = params; // Extract userId from params
     const { user: loggedInUser } = await validateRequest();
+
     if (!loggedInUser) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
 
-    // Check if userId is provided
     if (!userId) {
-      return new Response(JSON.stringify({ error: "User ID is required" }), {
+      return new NextResponse(JSON.stringify({ error: "User ID is required" }), {
         status: 400,
       });
     }
+
     await prisma.$transaction([
       prisma.follow.deleteMany({
         where: {
@@ -138,16 +144,14 @@ export async function DELETE(
         },
       }),
     ]);
-    // Delete the follow relationship if it exists
 
-    // Respond with success message
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ message: "Unfollowed successfully" }),
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error in DELETE /follow:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new NextResponse(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
     });
   }
