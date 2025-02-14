@@ -12,10 +12,9 @@ import { useState } from "react";
 import useDebounce from "@/hooks/useDebounce";
 import { UserResponse } from "stream-chat";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Loader2, SearchIcon, User, X } from "lucide-react";
+import { Check, Loader2, SearchIcon, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import UserAvatar from "@/components/UserAvatar";
-import { channel } from "diagnostics_channel";
 import LoadingButton from "@/components/LoadingButton";
 
 interface NewChatDialogProps {
@@ -71,7 +70,8 @@ export default function NewChatDialog({
       return channel;
     },
     onSuccess: (channel) => {
-      setActiveChannel(channel), onChatCreated();
+      setActiveChannel(channel);
+      onChatCreated();
     },
     onError(error) {
       console.error("Error starting chat", error);

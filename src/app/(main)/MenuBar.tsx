@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { HomeIcon, Mail, Bookmark } from "lucide-react";
+import { HomeIcon, Bookmark } from "lucide-react";
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import NotificationsButton from "./NotificationsButton";

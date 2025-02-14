@@ -30,6 +30,7 @@ export default function CropImageDialog({
     if (!cropper) return;
     cropper.getCroppedCanvas().toBlob((blob) => {
       onCropped(blob);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       ("image/webp");
       onClose();
     });

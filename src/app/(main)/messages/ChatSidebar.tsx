@@ -13,7 +13,7 @@ import NewChatDialog from "./NewChatDialog";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatSidebarProps {
-  open: Boolean;
+  open: boolean;
   onClose: () => void;
 }
 
