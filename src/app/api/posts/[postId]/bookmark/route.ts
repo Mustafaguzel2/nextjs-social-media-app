@@ -4,13 +4,14 @@ import prisma from "@/lib/prisma";
 import { BookmarkInfo } from "@/lib/types";
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     postId: string;
-  };
+  }>;
 }
 
 export async function GET(req: NextRequest, context: RouteContext) {
-  const { postId } = context.params;
+  // Dinamik parametreleri await ediyoruz:
+  const { postId } = await context.params;
   try {
     const { user } = await validateRequest();
     if (!user) {
@@ -23,12 +24,15 @@ export async function GET(req: NextRequest, context: RouteContext) {
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(req: NextRequest, { params }: RouteContext) {
-  const { postId } = params;
+export async function POST(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
   try {
     const { user } = await validateRequest();
     if (!user) {
@@ -42,12 +46,15 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
-  const { postId } = params;
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
   try {
     const { user } = await validateRequest();
     if (!user) {
@@ -59,6 +66,9 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
