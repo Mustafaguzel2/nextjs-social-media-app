@@ -7,7 +7,7 @@ export async function GET(
   req: Request,
   context: { params: { postId: string } },
 ) {
-  const { postId } = context.params;
+  const { postId } = await context.params;
   try {
     const { user: loggedInUser } = await validateRequest();
     if (!loggedInUser) {
