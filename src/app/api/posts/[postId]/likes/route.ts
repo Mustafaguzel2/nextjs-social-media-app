@@ -1,13 +1,16 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { LikeInfo } from "@/lib/types";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { postId: string } },
-) {
-  const { postId } = params; 
+interface RouteContext {
+  params: Promise<{
+    postId: string;
+  }>;
+}
+
+export async function GET(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
 
   try {
     const { user: loggedInUser } = await validateRequest();
@@ -44,11 +47,8 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { postId: string } },
-) {
-  const { postId } = params;
+export async function POST(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
 
   try {
     const { user: loggedInUser } = await validateRequest();
@@ -73,11 +73,8 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { postId: string } },
-) {
-  const { postId } = params;
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
 
   try {
     const { user: loggedInUser } = await validateRequest();
