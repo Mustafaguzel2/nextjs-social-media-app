@@ -44,10 +44,11 @@ export async function GET(
 }
 
 export async function POST(
-  req: Request,
+  request: Request,
   context: { params: { postId: string } },
 ) {
-  const { postId } = context.params;
+  const { postId } = await context.params; // ✅ params artık await edilmeli
+
   try {
     const { user: loggedInUser } = await validateRequest();
     if (!loggedInUser) {
@@ -72,10 +73,10 @@ export async function POST(
 }
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   context: { params: { postId: string } },
 ) {
-  const { postId } = context.params;
+  const { postId } = await context.params;
   try {
     const { user: loggedInUser } = await validateRequest();
     if (!loggedInUser) {
