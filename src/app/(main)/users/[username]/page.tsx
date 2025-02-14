@@ -10,16 +10,14 @@ import UserAvatar from "@/components/UserAvatar";
 import { formatDate } from "date-fns";
 import { formatNumber } from "@/lib/utils";
 import FollowerCount from "@/components/FollowerCount";
-import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import UserPosts from "./UserPosts";
 import Linkify from "@/components/Linkify";
 import EditProfileButton from "./EditProfileButton";
 
+// Updated PageProps: params is now a Promise resolving to an object with username
 interface PageProps {
-  params: {
-    username: string;
-  };
+  params: Promise<{ username: string }>;
 }
 
 const getUser = cache(async (username: string, loggedInUserId: string) => {
@@ -39,10 +37,9 @@ const getUser = cache(async (username: string, loggedInUserId: string) => {
   return user;
 });
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { username } = await params; // Await params to access username
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  // Await params to access the username
+  const { username } = await params;
   const { user: loggedInUser } = await validateRequest();
 
   if (!loggedInUser) {
@@ -57,7 +54,8 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: PageProps) {
-  const { username } = await params; // Await params to access username
+  // Await params to access the username
+  const { username } = await params;
   const { user: loggedInUser } = await validateRequest();
 
   if (!loggedInUser) {
