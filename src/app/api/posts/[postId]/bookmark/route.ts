@@ -5,9 +5,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { postId: string } },
+  context: { params: { postId: string } },
 ) {
-  const { postId } = params;
+  const { postId } = context.params;
 
   try {
     const { user } = await validateRequest();

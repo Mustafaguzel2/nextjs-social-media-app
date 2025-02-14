@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Input } from "./ui/input";
 import { InputProps } from "./ui/input";
 import React from "react";

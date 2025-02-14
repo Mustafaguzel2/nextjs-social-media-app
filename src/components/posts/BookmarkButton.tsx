@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import kyInstance from "@/lib/ky";
-import { BookmarkInfo, LikeInfo } from "@/lib/types";
+import { BookmarkInfo } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   QueryKey,
@@ -49,6 +49,7 @@ export default function BookmarkButton({
 
       return { previousState };
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onError: (error, variables, context) => {
       if (error instanceof HTTPError) {
         toast({

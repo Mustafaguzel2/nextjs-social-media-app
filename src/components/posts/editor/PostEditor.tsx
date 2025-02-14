@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";

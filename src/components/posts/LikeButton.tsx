@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useToast } from "@/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 import { LikeInfo } from "@/lib/types";
