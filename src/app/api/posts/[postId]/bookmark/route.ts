@@ -1,13 +1,10 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { BookmarkInfo,  } from "@/lib/types";
+import { BookmarkInfo } from "@/lib/types";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { postId: string } }
-) {
-  const { postId } = params;
+export async function GET(req: Request, context: { params: { postId: string } }) {
+  const { postId } = context.params;
 
   try {
     const { user } = await validateRequest();
