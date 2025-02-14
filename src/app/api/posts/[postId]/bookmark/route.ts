@@ -3,8 +3,11 @@ import prisma from "@/lib/prisma";
 import { BookmarkInfo } from "@/lib/types";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, context: { params: { postId: string } }) {
-  const { postId } = context.params;
+export async function GET(
+  req: Request,
+  { params }: { params: { postId: string } },
+) {
+  const { postId } = params;
 
   try {
     const { user } = await validateRequest();
@@ -23,13 +26,16 @@ export async function GET(req: Request, context: { params: { postId: string } })
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: { postId: string } },
 ) {
   const { postId } = params;
 
@@ -49,13 +55,16 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: { postId: string } },
 ) {
   const { postId } = params;
 
@@ -71,6 +80,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

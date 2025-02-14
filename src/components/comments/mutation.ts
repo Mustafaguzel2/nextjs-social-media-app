@@ -53,6 +53,7 @@ export function useSubmitCommentMutation(postId: string) {
   });
   return mutation;
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useDeleteCommentMutation(comment: CommentData) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
