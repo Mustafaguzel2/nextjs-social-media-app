@@ -3,12 +3,16 @@ import prisma from "@/lib/prisma";
 import { CommentsPage, getCommentDataInclude } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: Promise<{ postId: string }> | { postId: string } }
-) {
-  const params = context.params instanceof Promise ? await context.params : context.params;
-  const { postId } = params;
+// Burada context'in params özelliğini sadece Promise olarak tanımlıyoruz.
+interface RouteContext {
+  params: Promise<{
+    postId: string;
+  }>;
+}
+
+export async function GET(req: NextRequest, context: RouteContext) {
+  // Her zaman await et!
+  const { postId } = await context.params;
 
   try {
     const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
@@ -16,54 +20,47 @@ export async function GET(
     const pageSize = 5;
     const { user } = await validateRequest();
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const comments = await prisma.comment.findMany({
-      where: {
-        postId,
-      },
+      where: { postId },
       include: getCommentDataInclude(user.id),
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: { createdAt: "asc" },
       take: -pageSize - 1,
       cursor: cursor
-        ? {
-            id: cursor,
-          }
+        ? { id: cursor }
         : undefined,
     });
+
     const previousCursor = comments.length > pageSize ? comments[0].id : null;
     const data: CommentsPage = {
       comments: comments.length > pageSize ? comments.slice(1) : comments,
       previousCursor,
     };
-    return Response.json(data);
+
+    return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  context: { params: Promise<{ postId: string }> | { postId: string } }
-) {
-  const params = context.params instanceof Promise ? await context.params : context.params;
-  const { postId } = params;
+export async function POST(req: NextRequest, context: RouteContext) {
+  const { postId } = await context.params;
 
   try {
     const data = await req.json();
-    // Validate received data as needed
+    // Gelen veriyi ihtiyaç duyduğun şekilde validate et
 
     const comment = await prisma.comment.create({
       data: {
         content: data.content,
         postId,
-        userId: data.userId, // Ideally, this comes from your authenticated user's info
+        userId: data.userId, // Bu ideally authenticated user's info'dan gelmeli
       },
     });
-    
+
     return NextResponse.json({ comment });
   } catch (error) {
     console.error(error);
