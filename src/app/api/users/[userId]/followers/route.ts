@@ -3,11 +3,18 @@ import prisma from "@/lib/prisma";
 import { FollowerInfo } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 
+// Define the RouteContext interface with params as a Promise
+interface RouteContext {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
 // GET request handler to fetch follower information
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function GET(req: NextRequest, context: RouteContext) {
+  // Always await the params Promise
+  const { userId } = await context.params;
+
   try {
     const { user: loggedInUser } = await validateRequest();
 
@@ -19,7 +26,7 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: {
-        id: params.userId, // Use params.userId for correct routing
+        id: userId, // Use userId from context.params for correct routing
       },
       select: {
         followers: {
@@ -59,12 +66,11 @@ export async function GET(
 }
 
 // POST request handler to follow a user
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function POST(req: NextRequest, context: RouteContext) {
+  // Always await the params Promise
+  const { userId } = await context.params;
+
   try {
-    const { userId } = params; // Extract userId from params
     const { user: loggedInUser } = await validateRequest();
 
     if (!loggedInUser) {
@@ -109,12 +115,11 @@ export async function POST(
 }
 
 // DELETE request handler to unfollow a user
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  // Always await the params Promise
+  const { userId } = await context.params;
+
   try {
-    const { userId } = params; // Extract userId from params
     const { user: loggedInUser } = await validateRequest();
 
     if (!loggedInUser) {

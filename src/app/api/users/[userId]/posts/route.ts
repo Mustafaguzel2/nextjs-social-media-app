@@ -3,13 +3,17 @@ import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import { getPostDataInclude, PostsPage } from "@/lib/types";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { userId: string } }
-) {
+// Define the RouteContext interface with params as a Promise
+interface RouteContext {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
+export async function GET(req: NextRequest, context: RouteContext) {
   try {
-    // Ensure the params are correctly destructured from context
-    const { userId } = context.params;
+    // Always await the params Promise to extract userId
+    const { userId } = await context.params;
 
     // Get the cursor from the query params (for pagination)
     const cursor = req.nextUrl.searchParams.get("cursor") || undefined;

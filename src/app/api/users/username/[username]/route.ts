@@ -2,13 +2,20 @@ import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import { getUserDataSelect } from "@/lib/types";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { username: string } }
-) {
-  const { username } = await params;
+// Define the RouteContext interface with params as a Promise
+interface RouteContext {
+  params: Promise<{
+    username: string;
+  }>;
+}
+
+export async function GET(req: Request, context: RouteContext) {
   try {
+    // Always await the params Promise to extract username
+    const { username } = await context.params;
+
     const { user: loggedInUser } = await validateRequest();
+
     if (!loggedInUser) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
