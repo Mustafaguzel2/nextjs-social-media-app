@@ -5,9 +5,10 @@ import { LikeInfo } from "@/lib/types";
 
 export async function GET(
   req: Request,
-  context: { params: { postId: string } },
+  { params }: { params: { postId: string } },
 ) {
-  const { postId } = await context.params;
+  const { postId } = params; 
+
   try {
     const { user: loggedInUser } = await validateRequest();
     if (!loggedInUser) {
@@ -45,9 +46,9 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  context: { params: { postId: string } },
+  { params }: { params: { postId: string } },
 ) {
-  const { postId } = await context.params; // ✅ params artık await edilmeli
+  const { postId } = params;
 
   try {
     const { user: loggedInUser } = await validateRequest();
@@ -74,9 +75,10 @@ export async function POST(
 
 export async function DELETE(
   request: Request,
-  context: { params: { postId: string } },
+  { params }: { params: { postId: string } },
 ) {
-  const { postId } = await context.params;
+  const { postId } = params;
+
   try {
     const { user: loggedInUser } = await validateRequest();
     if (!loggedInUser) {
