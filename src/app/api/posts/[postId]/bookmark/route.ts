@@ -1,83 +1,79 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { BookmarkInfo, LikeInfo } from "@/lib/types";
+import { BookmarkInfo,  } from "@/lib/types";
+import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  context: { params: Promise<{ postId: string }> | { postId: string } },
+  { params }: { params: { postId: string } }
 ) {
-  // Await context.params if it is a Promise
-  const params =
-    context.params instanceof Promise ? await context.params : context.params;
   const { postId } = params;
 
   try {
-    const { user: loggedInUser } = await validateRequest();
-    if (!loggedInUser) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { user } = await validateRequest();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bookmark = await prisma.bookmark.findUnique({
-      where: { userId_postId: { userId: loggedInUser.id, postId } },
+      where: { userId_postId: { userId: user.id, postId } },
     });
 
     const data: BookmarkInfo = {
       isBookmarkedByUser: !!bookmark,
     };
+
+    return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(
   req: Request,
-  context: { params: Promise<{ postId: string }> | { postId: string } },
+  { params }: { params: { postId: string } }
 ) {
-  const params =
-    context.params instanceof Promise ? await context.params : context.params;
   const { postId } = params;
 
   try {
-    const { user: loggedInUser } = await validateRequest();
-    if (!loggedInUser) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { user } = await validateRequest();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.bookmark.upsert({
       where: {
-        userId_postId: { userId: loggedInUser.id, postId },
+        userId_postId: { userId: user.id, postId },
       },
-      create: { userId: loggedInUser.id, postId },
+      create: { userId: user.id, postId },
       update: {},
     });
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   req: Request,
-  context: { params: Promise<{ postId: string }> | { postId: string } },
+  { params }: { params: { postId: string } }
 ) {
-  const params =
-    context.params instanceof Promise ? await context.params : context.params;
   const { postId } = params;
 
   try {
-    const { user: loggedInUser } = await validateRequest();
-    if (!loggedInUser) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { user } = await validateRequest();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.bookmark.deleteMany({
-      where: { userId: loggedInUser.id, postId },
+      where: { userId: user.id, postId },
     });
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
