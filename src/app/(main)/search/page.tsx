@@ -3,22 +3,24 @@ import SearchResults from "./SearchResult";
 
 export const dynamic = "force-dynamic";
 
+type PageProps = {
+  searchParams: Promise<{ q?: string }>;
+};
+
 export async function generateMetadata({
   searchParams,
-}: {
-  searchParams: { q?: string };
-}) {
+}: PageProps) {
+  const { q } = await Promise.resolve(searchParams);
   return {
-    title: `Search results for "${searchParams.q || "Search"}"`,
+    title: `Search results for "${q || "Search"}"`,
   };
 }
 
-export default function Page({
+export default async function Page({
   searchParams,
-}: {
-  searchParams: { q?: string };
-}) {
-  const searchQuery = searchParams.q ?? "";
+}: PageProps) {
+  const { q } = await Promise.resolve(searchParams);
+  const searchQuery = q ?? "";
 
   return (
     <main className="flex w-full min-w-0 gap-5">
