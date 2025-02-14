@@ -1,0 +1,68 @@
+import { NextRequest } from "next/server";
+import { validateRequest } from "@/auth";
+import prisma from "@/lib/prisma";
+import { getPostDataInclude, PostsPage } from "@/lib/types";
+
+export async function GET(
+  req: NextRequest,
+  context: { params: { userId: string } }
+) {
+  try {
+    // Ensure the params are awaited properly
+    const { userId } = await context.params;
+
+    // Get the cursor from the query params
+    const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
+
+    const pageSize = 10;
+
+    // Validate the user
+    const { user } = await validateRequest();
+
+    // If the user is not authenticated, return unauthorized response
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Query the posts from Prisma
+    const posts = await prisma.post.findMany({
+      where: {
+        userId, // Use the userId from params
+      },
+      include: getPostDataInclude(user.id),
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: pageSize + 1, // We fetch one extra to determine if there is more data
+      cursor: cursor
+        ? {
+            id: cursor,
+          }
+        : undefined,
+    });
+
+    // Determine if there is a next page (if posts.length > pageSize)
+    const nextCursor = posts.length > pageSize ? posts[pageSize].id : null;
+
+    // Prepare the data to send back
+    const data: PostsPage = {
+      posts: posts.slice(0, pageSize), // Only take the first `pageSize` posts
+      nextCursor,
+    };
+
+    // Return the posts data as JSON
+    return new Response(
+      JSON.stringify(data),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error(error);
+    return new Response(
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
